@@ -18,7 +18,7 @@ from skimage.segmentation import mark_boundaries
 from utils import SessionState  # Assuming SessionState.py lives on this folder
 
 session = SessionState.get(run_id=0)
-model19 = tf.keras.models.load_model('models/vgg16_model')
+model19 = tf.keras.models.load_model('models/mobile_model')
 
 
 def main():
