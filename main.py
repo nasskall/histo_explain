@@ -25,52 +25,8 @@ model19 = tf.keras.models.load_model('models/vgg19_model')
 def main():
     image_s = None
     st.title("Explaining histopathology images")
-    process = st.sidebar.radio('Type of predictive model', ('VGG16', 'VGG19'))
     seg_algo = st.sidebar.radio('Type of segmentation algorithm', ('Felzenswalb', 'Slic', 'Quickshift', 'Watershed'))
     with st.container():
-        if process == 'VGG16':
-            st.title("VGG16 and " + seg_algo)
-            st.sidebar.write('You selected VGG16 and ' + seg_algo)
-            imp_threshold,params = get_params(seg_algo)
-            sample = st.file_uploader("Choose an sample image...")
-            if sample is not None:
-                image_s = Image.open(sample)
-                st.image(image_s, caption='Sample Image', width=300)
-            if sample is not None:
-                if st.button('Predict and Explain'):
-                    with st.spinner("Explaining predictive model's results"):
-                        image_s = np.array(image_s)
-                        model_logit = Model(model16.input, model16.layers[-2].output)
-                        retrained_gradCAM = GradCAM(model=model_logit, layerName="block5_conv3")
-                        retrained_guidedBP = GuidedBackprop(model=model16, layerName="block5_conv3")
-                        cam, new_img, guidedcam_img, res = show_gradCAMs(model16, retrained_gradCAM, retrained_guidedBP,
-                                                                         image_s, decode={1: "Malignant", 0: "Benign"})
-                        output_image1 = Image.fromarray(new_img)
-                        output_image2 = Image.fromarray(guidedcam_img)
-                        dst, image_c = generate_maps(image_s, cam, imp_threshold, params, seg_algo='Felzenswalb')
-                        if output_image1:
-                            st.header("Prediction: {}".format(res[0]))
-                            st.header("Probability: {:.2f} for VGG19".format(float(res[1])))
-                            col_gc, col_gcc = st.columns(2)
-                            with col_gc:
-                                st.subheader("Grad-CAM")
-                                st.image(output_image1)
-                            with col_gcc:
-                                st.subheader("Guided Grad-CAM")
-                                st.image(output_image2)
-                            col_gc1, col_gcc1 = st.columns(2)
-                            with col_gc1:
-                                st.subheader("Important Regions")
-                                st.image(image_c)
-                            with col_gcc1:
-                                st.subheader("Grad CAM and " + seg_algo)
-                                st.image(dst)
-                            st.success('Done')
-                    if st.button(
-                            'Try again'):
-                        session.run_id += 1
-        else:
-            with st.container():
                 st.title("VGG19 and " + seg_algo)
                 st.sidebar.write('You selected VGG19 and ' + seg_algo)
                 # Add a slider to the sidebar:
