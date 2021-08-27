@@ -39,8 +39,8 @@ def main():
                         with st.spinner("Explaining predictive model's results"):
                             image_s = np.array(image_s)
                             model_logit = Model(model19.input, model19.layers[-2].output)
-                            retrained_gradCAM = GradCAM(model=model_logit, layerName="block5_conv3")
-                            retrained_guidedBP = GuidedBackprop(model=model19, layerName="block5_conv3")
+                            retrained_gradCAM = GradCAM(model=model_logit, layerName="conv_pw_13")
+                            retrained_guidedBP = GuidedBackprop(model=model19, layerName="conv_pw_13")
                             cam, new_img, guidedcam_img, res = show_gradCAMs(model19, retrained_gradCAM,
                                                                              retrained_guidedBP,
                                                                              image_s,
