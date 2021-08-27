@@ -1,5 +1,4 @@
 # This is a sample Python script.
-
 import cv2
 from skimage import img_as_float
 from tensorflow.keras import backend as K
