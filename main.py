@@ -18,7 +18,7 @@ from skimage.segmentation import mark_boundaries
 from utils import SessionState  # Assuming SessionState.py lives on this folder
 
 session = SessionState.get(run_id=0)
-model19 = tf.keras.models.load_model('models/mobile_model')
+model19 = tf.keras.models.load_model('models/vgg16_model')
 
 
 def main():
@@ -26,8 +26,8 @@ def main():
     st.title("Explaining histopathology images")
     seg_algo = st.sidebar.radio('Type of segmentation algorithm', ('Felzenswalb', 'Slic', 'Quickshift', 'Watershed'))
     with st.container():
-                st.title("VGG19 and " + seg_algo)
-                st.sidebar.write('You selected VGG19 and ' + seg_algo)
+                st.title("VGG16 and " + seg_algo)
+                st.sidebar.write('You selected VGG16 and ' + seg_algo)
                 # Add a slider to the sidebar:
                 imp_threshold,params = get_params(seg_algo)
                 sample = st.file_uploader("Choose an sample image...")
@@ -39,8 +39,8 @@ def main():
                         with st.spinner("Explaining predictive model's results"):
                             image_s = np.array(image_s)
                             model_logit = Model(model19.input, model19.layers[-2].output)
-                            retrained_gradCAM = GradCAM(model=model_logit, layerName="conv_pw_13")
-                            retrained_guidedBP = GuidedBackprop(model=model19, layerName="conv_pw_13")
+                            retrained_gradCAM = GradCAM(model=model_logit, layerName="block5_conv3")
+                            retrained_guidedBP = GuidedBackprop(model=model19, layerName="block5_conv3")
                             cam, new_img, guidedcam_img, res = show_gradCAMs(model19, retrained_gradCAM,
                                                                              retrained_guidedBP,
                                                                              image_s,
