@@ -111,14 +111,6 @@ def get_params(seg_algo=None):
             'Ratio',
             0.1, 1.0, 0.5)
         params = [kernel_size, max_dist, ratio]
-    else:
-        markers = st.sidebar.slider(
-            'Markers',
-            1, 20, 6)
-        compactness = st.sidebar.slider(
-            'Compactness',
-            0.1, 1.0, 0.5)
-        params = [markers, compactness]
     return imp_threshold,params
 
 
@@ -133,10 +125,7 @@ def generate_maps(image_s, class_act, imp_thre, params,seg_algo=None):
     elif seg_algo == 'Quickshift':
         segments = quickshift(image_s, kernel_size=params[0], max_dist=params[1], ratio=params[2])
         st.header(f"Quickshift number of segments: {len(np.unique(segments))}")
-    else:
-        gradient = sobel(rgb2gray(image_s))
-        segments = watershed(gradient, markers=params[0], compactness=params[1])
-        st.header(f"Watershed number of segments: {len(np.unique(segments))}")
+
     image_hsv = cv2.cvtColor(class_act, cv2.COLOR_RGB2HSV)
     # lower boundary RED color range values; Hue (0 - 10)
     lower1 = np.array([0, 100, 10])
