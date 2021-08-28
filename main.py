@@ -19,10 +19,10 @@ from utils import SessionState  # Assuming SessionState.py lives on this folder
 
 session = SessionState.get(run_id=0)
 
-@st.cache(suppress_st_warning=True)
+@st.cache(allow_output_mutation=True)
 def load_model():
-    model19 = tf.keras.models.load_model('models/vgg16_model')
-
+    model = tf.keras.models.load_model('models/vgg16_model')
+    return model
 
 def main():
     model = load_model()
