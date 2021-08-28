@@ -18,10 +18,14 @@ from skimage.segmentation import mark_boundaries
 from utils import SessionState  # Assuming SessionState.py lives on this folder
 
 session = SessionState.get(run_id=0)
-model19 = tf.keras.models.load_model('models/mobile_model')
+
+@st.cache(suppress_st_warning=True)
+def load_model():
+    model19 = tf.keras.models.load_model('models/vgg16_model')
 
 
 def main():
+    model = load_model()
     image_s = None
     st.title("Explaining histopathology images")
     seg_algo = st.sidebar.radio('Type of segmentation algorithm', ('Felzenswalb', 'Slic', 'Quickshift', 'Watershed'))
@@ -38,10 +42,10 @@ def main():
                     if st.button('Predict and Explain'):
                         with st.spinner("Explaining predictive model's results"):
                             image_s = np.array(image_s)
-                            model_logit = Model(model19.input, model19.layers[-2].output)
-                            retrained_gradCAM = GradCAM(model=model_logit, layerName="conv_pw_13")
-                            retrained_guidedBP = GuidedBackprop(model=model19, layerName="conv_pw_13")
-                            cam, new_img, guidedcam_img, res = show_gradCAMs(model19, retrained_gradCAM,
+                            model_logit = Model(model.input, model.layers[-2].output)
+                            retrained_gradCAM = GradCAM(model=model_logit, layerName="block5_conv3")
+                            retrained_guidedBP = GuidedBackprop(model=model, layerName="block5_conv3")
+                            cam, new_img, guidedcam_img, res = show_gradCAMs(model, retrained_gradCAM,
                                                                              retrained_guidedBP,
                                                                              image_s,
                                                                              decode={1: "Malignant", 0: "Benign"})
