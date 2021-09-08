@@ -80,7 +80,7 @@ def main():
 def get_params(seg_algo=None):
     imp_threshold = st.sidebar.slider(
         'Importance threshold',
-        0.01, 1.0, 0.3)
+        0.01, 1.0, 0.5)
     if seg_algo == 'Felzenswalb':
         scale = st.sidebar.slider(
             'Scale',
