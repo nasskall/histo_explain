@@ -147,7 +147,7 @@ def generate_maps(image_s, class_act, imp_thre, params,seg_algo=None):
     for i, cnt in enumerate(contours):
         if (hierarchy[0, i, 3] == -1):
             k += 1
-        cv2.drawContours(image_c, [cnt], -1, (255, 0, 0), 1)
+        cv2.drawContours(image_c, [cnt], -1, (0, 255, 0), 1)
     img = image_s
     for i in range(len(np.unique(segments))):
         seg_pixels = np.where(segments == i)
