@@ -52,6 +52,7 @@ def main():
                             output_image1 = Image.fromarray(new_img)
                             output_image2 = Image.fromarray(guidedcam_img)
                             dst, image_c = generate_maps(image_s, cam, imp_threshold, params, seg_algo)
+                            heatmap = Image.open('colorscale_jet.jpg')
                             if output_image1:
                                 st.header("Prediction: {}".format(res[0]))
                                 st.header("Probability: {:.2f} for VGG19".format(float(res[1])))
@@ -69,6 +70,8 @@ def main():
                                 with col_gcc1:
                                     st.subheader("Grad CAM and " + seg_algo)
                                     st.image(dst)
+                                    st.write('Importance colormap')
+                                    st.image(heatmap)
                                 st.success('Done')
                         if st.button(
                                 'Try again'):
@@ -87,7 +90,7 @@ def get_params(seg_algo=None):
             0.01, 2.00, 0.5)
         min_size = st.sidebar.slider(
             'Minimum size',
-            0, 500, 50)
+            0, 2000, 50)
         params = [scale, sigma, min_size]
     elif seg_algo == 'Slic':
         n_segments = st.sidebar.slider(
@@ -159,7 +162,7 @@ def generate_maps(image_s, class_act, imp_thre, params,seg_algo=None):
         if count != 0:
             image_r = mark_boundaries(img, (segments == i).astype(int),
                                       background_label=0,
-                                      color=(intensity * (1 / count)).astype(int),
+                                      color=(intensity * (1 / count)).astype(int)[::-1],
                                       mode='inner')
             if count > imp_thre * len(seg_list):
                 img = image_r
