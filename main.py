@@ -128,18 +128,19 @@ def generate_maps(image_s, class_act, imp_thre, params,seg_algo=None):
     elif seg_algo == 'Quickshift':
         segments = quickshift(image_s, kernel_size=params[0], max_dist=params[1], ratio=params[2])
         st.header(f"Quickshift number of segments: {len(np.unique(segments))}")
-
+    #st.image(Image.fromarray(class_act))
     image_hsv = cv2.cvtColor(class_act, cv2.COLOR_RGB2HSV)
     # lower boundary RED color range values; Hue (0 - 10)
     lower1 = np.array([0, 100, 10])
-    upper1 = np.array([1, 255, 255])
+    upper1 = np.array([10, 255, 255])
     # upper boundary RED color range values; Hue (160 - 180)
-    lower2 = np.array([179, 100, 10])
+    lower2 = np.array([160, 100, 10])
     upper2 = np.array([180, 255, 255])
     lower_mask = cv2.inRange(image_hsv, lower1, upper1)
     upper_mask = cv2.inRange(image_hsv, lower2, upper2)
     full_mask = lower_mask + upper_mask;
     hsv_threshold = cv2.bitwise_not(full_mask)
+    #st.image(Image.fromarray(hsv_threshold))
     contours, hierarchy = cv2.findContours(hsv_threshold, cv2.RETR_EXTERNAL,
                                            cv2.CHAIN_APPROX_NONE)
     k = -1
