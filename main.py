@@ -1,8 +1,6 @@
-# This is a sample Python script.
+# Streamlit explainability demo for histopathology images.
 import cv2
 from tensorflow.keras import backend as K
-import os
-import random
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.applications.imagenet_utils import decode_predictions
 from tensorflow.keras.applications.vgg16 import preprocess_input
@@ -11,15 +9,11 @@ import numpy as np
 from PIL import Image
 import tensorflow as tf
 from tensorflow.keras.models import Model
-from skimage.color import rgb2gray
-from skimage.filters import sobel
-from skimage.segmentation import felzenszwalb, slic, quickshift, watershed
+from skimage.segmentation import felzenszwalb, slic, quickshift
 from skimage.segmentation import mark_boundaries
-from utils import SessionState  # Assuming SessionState.py lives on this folder
 
-session = SessionState.get(run_id=0)
 
-@st.cache(allow_output_mutation=True)
+@st.cache_resource
 def load_model():
     model = tf.keras.models.load_model('models/vgg16_model')
     return model
@@ -28,7 +22,7 @@ def main():
     model = load_model()
     image_s = None
     st.title("Explaining histopathology images")
-    seg_algo = st.sidebar.radio('Type of segmentation algorithm', ('Felzenswalb', 'Slic', 'Quickshift', 'Watershed'))
+    seg_algo = st.sidebar.radio('Type of segmentation algorithm', ('Felzenswalb', 'Slic', 'Quickshift'))
     with st.container():
                 st.title("VGG16 and " + seg_algo)
                 st.sidebar.write('You selected VGG16 and ' + seg_algo)
@@ -55,7 +49,7 @@ def main():
                             heatmap = Image.open('colorscale_jet.jpg')
                             if output_image1:
                                 st.header("Prediction: {}".format(res[0]))
-                                st.header("Probability: {:.2f} for VGG19".format(float(res[1])))
+                                st.header("Probability: {:.2f} for VGG16".format(float(res[1])))
                                 col_gc, col_gcc = st.columns(2)
                                 with col_gc:
                                     st.subheader("Grad-CAM")
@@ -73,9 +67,8 @@ def main():
                                     st.write('Importance colormap')
                                     st.image(heatmap)
                                 st.success('Done')
-                        if st.button(
-                                'Try again'):
-                            session.run_id += 1
+                        if st.button('Try again'):
+                            st.rerun()
 
 def get_params(seg_algo=None):
     imp_threshold = st.sidebar.slider(
@@ -331,8 +324,5 @@ def show_gradCAMs(model, gradCAM, GuidedBP, img, decode={}):
     return cam, new_img, guided_gradcam, res
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     main()
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
