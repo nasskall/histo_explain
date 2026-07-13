@@ -13,10 +13,26 @@ from skimage.segmentation import felzenszwalb, slic, quickshift
 from skimage.segmentation import mark_boundaries
 
 
+# VGG16 activation memory grows with image area: peak usage is about 0.7 GB at
+# 224 px, 1.4 GB at 512 px and 3.9 GB at 1024 px, against a 2.7 GB limit on
+# Streamlit Community Cloud. Uploads are downscaled to stay inside it.
+MAX_SIDE = 512
+
+
 @st.cache_resource
 def load_model():
     model = tf.keras.models.load_model('models/vgg16_model')
     return model
+
+
+def cap_size(image, max_side=MAX_SIDE):
+    width, height = image.size
+    if max(width, height) <= max_side:
+        return image, False
+    scale = max_side / max(width, height)
+    resized = image.resize((max(1, round(width * scale)), max(1, round(height * scale))),
+                           Image.LANCZOS)
+    return resized, True
 
 def main():
     model = load_model()
@@ -31,7 +47,12 @@ def main():
                 sample = st.file_uploader("Choose an sample image...")
                 if sample is not None:
                     image_s = Image.open(sample).convert("RGB")
+                    image_s, was_resized = cap_size(image_s)
                     st.image(image_s, caption='Sample Image', width=300)
+                    if was_resized:
+                        st.caption("Image downscaled to {}x{} px (longest side capped at {}) "
+                                   "to stay within the app's memory limit.".format(
+                                       image_s.size[0], image_s.size[1], MAX_SIDE))
                 if sample is not None:
                     if st.button('Predict and Explain'):
                         with st.spinner("Explaining predictive model's results"):
