@@ -30,7 +30,7 @@ def main():
                 imp_threshold,params = get_params(seg_algo)
                 sample = st.file_uploader("Choose an sample image...")
                 if sample is not None:
-                    image_s = Image.open(sample)
+                    image_s = Image.open(sample).convert("RGB")
                     st.image(image_s, caption='Sample Image', width=300)
                 if sample is not None:
                     if st.button('Predict and Explain'):
