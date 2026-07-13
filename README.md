@@ -15,6 +15,8 @@ Upload a histopathology image and the app returns the predicted class and probab
 - **Important regions**: contours of the most influential areas extracted from the activation map.
 - **Superpixel importance map**: Grad-CAM importance aggregated over superpixels, with a choice of segmentation algorithm (Felzenszwalb, SLIC, or Quickshift) and an adjustable importance threshold and per-algorithm parameters in the sidebar.
 
+Uploads whose longest side exceeds 512 px are downscaled to that limit before inference, preserving aspect ratio, and the app reports when it has done so. The VGG16 backbone is fully convolutional, so activation memory grows with image area: peak usage is roughly 0.7 GB at 224 px, 1.4 GB at 512 px and 3.9 GB at 1024 px, against about 2.7 GB on Streamlit Community Cloud. Without the cap a large patch exhausts the container's memory and the app is terminated. Images already below the limit are used at their native resolution.
+
 The goal is to make the model's reasoning inspectable for pathologists and researchers, in line with faithfulness-oriented interpretability of medical image classifiers.
 
 ## Related publications
@@ -44,3 +46,5 @@ The app is deployed on Streamlit Community Cloud from this repository (branch `m
 ## Notes
 
 The bundled model is intended for demonstration and research use only. It is not a medical device and must not be used for diagnosis.
+
+The 512 px cap (`MAX_SIDE` in `main.py`) is set by the memory available on Streamlit Community Cloud, not by the model, which accepts any input size. Running on a host with more memory allows the limit to be raised or removed.
