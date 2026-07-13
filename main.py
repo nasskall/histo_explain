@@ -142,8 +142,10 @@ def generate_maps(image_s, class_act, imp_thre, params,seg_algo=None):
         if (hierarchy[0, i, 3] == -1):
             k += 1
         cv2.drawContours(image_c, [cnt], -1, (0, 255, 0), 3)
-    img = image_s
-    for i in range(len(np.unique(segments))):
+    # mark_boundaries returns a float image in [0, 1], so the image and the
+    # boundary colours are kept on that scale throughout the loop.
+    img = image_s / 255
+    for i in np.unique(segments):
         seg_pixels = np.where(segments == i)
         seg_list = list(zip(seg_pixels[0], seg_pixels[1]))
         count = 0
@@ -156,12 +158,11 @@ def generate_maps(image_s, class_act, imp_thre, params,seg_algo=None):
         if count != 0:
             image_r = mark_boundaries(img, (segments == i).astype(int),
                                       background_label=0,
-                                      color=(intensity * (1 / count)).astype(int)[::-1],
+                                      color=(intensity / (count * 255))[::-1],
                                       mode='inner')
             if count > imp_thre * len(seg_list):
                 img = image_r
-    img_mask = img / 255
-    dst = cv2.addWeighted(image_s / 255, 0.4, img_mask, 0.6, 0)
+    dst = cv2.addWeighted(image_s / 255, 0.4, img, 0.6, 0)
     return dst, image_c
 
 
